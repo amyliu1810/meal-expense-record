@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>餐費記錄</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --card: #111a33;
+        --text: #e8ecff;
+        --muted: #a9b3d6;
+        --line: #233058;
+        --accent: #7aa2ff;
+        --danger: #ff6b6b;
+        --ok: #3ddc97;
+
+        /* 控制項（input/select/toggle） */
+        --control-bg: rgba(10, 14, 30, 0.55);
+        --control-border: rgba(255, 255, 255, 0.14);
+        --control-text: var(--text);
+        --control-placeholder: rgba(232, 236, 255, 0.45);
+
+        --control-bg-soft: rgba(255, 255, 255, 0.08); /* 小按鈕/內層 */
+        --control-h: 56px; /* 你想要的統一高度，可改 52/56/60 */
+        --control-px: 14px; /* 左右內距 */
+
+        color-scheme: light dark;
+      }
+      :root[data-theme="light"] {
+        --bg: #f6f7fb;
+        --card: rgba(255, 255, 255, 0.88);
+        --text: #1a1f2e;
+        --muted: #5b647e;
+        --line: #d6dbea;
+        --accent: #2f64ff;
+        --danger: #d43b3b;
+        --ok: #0d9b63;
+
+        /* 淺色：控制項變淺 */
+        --control-bg: rgba(255, 255, 255, 0.92);
+        --control-border: rgba(30, 40, 70, 0.18);
+        --control-text: #1a1f2e;
+        --control-placeholder: rgba(26, 31, 46, 0.35);
+        --control-bg-soft: rgba(26, 31, 46, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Noto Sans TC",
+          Arial;
+        background: radial-gradient(
+            1200px 600px at 20% -10%,
+            #182452 0%,
+            var(--bg) 45%
+          )
+          fixed;
+        color: var(--text);
+        padding: 20px;
+      }
+      .wrap {
+        max-width: 780px;
+        margin: 0 auto;
+      }
+      .top {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: 0.5px;
+      }
+      .sub {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .card {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        border-radius: 16px;
+        padding: 16px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 2px 0 6px;
+      }
+      input,
+      select {
+        height: var(--control-h);
+        padding: 0 var(--control-px);
+        line-height: 1.2; /* 覆蓋掉你原本 line-height: var(--control-h) */
+        border-radius: 12px;
+        border: 1px solid var(--control-border);
+        background: var(--control-bg);
+        color: var(--control-text);
+      }
+      input::placeholder {
+        color: var(--control-placeholder);
+      }
+      input:focus,
+      select:focus {
+        border-color: rgba(122, 162, 255, 0.7);
+      }
+      .col {
+        flex: 1;
+        min-width: 160px;
+      }
+      .col.small {
+        flex: 0 0 160px;
+      }
+      .btns {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      button {
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(122, 162, 255, 0.15);
+        color: var(--text);
+        cursor: pointer;
+      }
+      button:hover {
+        background: rgba(122, 162, 255, 0.22);
+      }
+      button.primary {
+        background: rgba(122, 162, 255, 0.28);
+        border-color: rgba(122, 162, 255, 0.45);
+      }
+      button.danger {
+        background: rgba(255, 107, 107, 0.14);
+        border-color: rgba(255, 107, 107, 0.35);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .stat {
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.18);
+      }
+      .stat .k {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .stat .v {
+        margin-top: 6px;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .progressWrap {
+        margin-top: 12px;
+      }
+      .bar {
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .bar > div {
+        height: 100%;
+        width: 0%;
+      }
+      .bar .fill {
+        background: linear-gradient(
+          90deg,
+          rgba(122, 162, 255, 0.7),
+          rgba(61, 220, 151, 0.7)
+        );
+      }
+      .bar .fill.full {
+        background: linear-gradient(
+          90deg,
+          rgba(61, 220, 151, 0.8),
+          rgba(61, 220, 151, 0.8)
+        );
+      }
+      .hint {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 14px;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.18);
+      }
+      th,
+      td {
+        padding: 10px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 13px;
+      }
+      th {
+        color: var(--muted);
+        text-align: left;
+        font-weight: 600;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      .amt {
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .right {
+        text-align: center;
+      }
+      .miniBtn {
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .miniBtn:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .dangerText {
+        color: var(--danger);
+      }
+      .okText {
+        color: var(--ok);
+      }
+      .footerNote {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      /* 主題開關 UI */
+      .themeToggle {
+        height: var(--control-h);
+        padding: 0 var(--control-px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        border-radius: 12px;
+        border: 1px solid var(--control-border);
+        background: var(--control-bg);
+      }
+
+      /* 開關本體讓它垂直置中更穩 */
+      .themeToggle input {
+        margin: 0;
+        flex: 0 0 auto;
+      }
+
+      /* 右邊文字不會被擠壓 */
+      #themeText {
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .themeToggle input {
+        width: 42px;
+        height: 24px;
+        appearance: none;
+        border-radius: 999px;
+        border: 1px solid var(--control-border);
+        background: var(--control-bg-soft);
+        position: relative;
+        cursor: pointer;
+      }
+      .themeToggle input::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 3px;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.7);
+        transition: all 0.18s ease;
+      }
+      .themeToggle input:checked {
+        background: rgba(122, 162, 255, 0.25);
+        border-color: rgba(122, 162, 255, 0.45);
+      }
+      .themeToggle input:checked::after {
+        left: calc(100% - 21px);
+        background: rgba(255, 255, 255, 0.9);
+      }
+      #themeText {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      /* 淺色主題：用 data-theme="light" 覆蓋變數 */
+      :root[data-theme="light"] {
+        --bg: #f6f7fb;
+        --card: rgba(255, 255, 255, 0.88);
+        --text: #1a1f2e;
+        --muted: #5b647e;
+        --line: #d6dbea;
+        --accent: #2f64ff;
+        --danger: #d43b3b;
+        --ok: #0d9b63;
+      }
+
+      /* 淺色主題時的背景更柔和 */
+      :root[data-theme="light"] body {
+        background: radial-gradient(
+            1200px 600px at 20% -10%,
+            #e8eeff 0%,
+            var(--bg) 55%
+          )
+          fixed;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <h1>餐費記錄</h1>
+          <div class="sub">
+            輸入金額後新增；自動加總並顯示距離滿額 5700 的差額
+          </div>
+        </div>
+        <div class="col small">
+          <label>月份</label>
+          <select id="monthSelect" style="min-width: 160px"></select>
+        </div>
+        <div class="col small" style="min-width: 160px">
+          <label>主題</label>
+          <div class="themeToggle">
+            <input id="themeToggle" type="checkbox" />
+            <span id="themeText">深色</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div class="col small">
+            <label>日期</label>
+            <input id="dateInput" type="date" />
+          </div>
+          <div class="col">
+            <label>金額（必填）</label>
+            <input
+              id="amountInput"
+              inputmode="numeric"
+              placeholder="例如：230"
+            />
+          </div>
+          <div class="col">
+            <label>備註（選填）</label>
+            <input id="noteInput" placeholder="例如：午餐 / 同事聚餐" />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="addBtn">新增</button>
+          <button id="exportBtn">匯出 CSV</button>
+          <button class="danger" id="clearBtn">清空本月</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">本月筆數</div>
+            <div class="v" id="countText">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">本月總額</div>
+            <div class="v" id="totalText">$0</div>
+          </div>
+          <div class="stat">
+            <div class="k">距離滿 5700 還差</div>
+            <div class="v" id="remainText">$5,700</div>
+          </div>
+        </div>
+
+        <div class="progressWrap">
+          <div class="bar">
+            <div class="fill" id="progressFill"></div>
+          </div>
+          <div class="hint" id="progressHint">進度：0%</div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px">日期</th>
+              <th style="width: 140px">備註</th>
+              <th class="right" style="width: 140px">金額</th>
+              <th class="right" style="width: 110px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr>
+              <td colspan="4" class="muted">目前沒有紀錄</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="footerNote">
+          資料儲存在這台裝置的瀏覽器（localStorage）。換瀏覽器/換裝置不會自動同步。
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const TARGET = 5700;
+
+      const els = {
+        monthSelect: document.getElementById("monthSelect"),
+        dateInput: document.getElementById("dateInput"),
+        amountInput: document.getElementById("amountInput"),
+        noteInput: document.getElementById("noteInput"),
+        addBtn: document.getElementById("addBtn"),
+        clearBtn: document.getElementById("clearBtn"),
+        exportBtn: document.getElementById("exportBtn"),
+        tbody: document.getElementById("tbody"),
+        countText: document.getElementById("countText"),
+        totalText: document.getElementById("totalText"),
+        remainText: document.getElementById("remainText"),
+        progressFill: document.getElementById("progressFill"),
+        progressHint: document.getElementById("progressHint"),
+        themeToggle: document.getElementById("themeToggle"),
+        themeText: document.getElementById("themeText"),
+      };
+
+      const fmtMoney = (n) => {
+        const v = Math.round(Number(n) || 0);
+        return "$" + v.toLocaleString("zh-TW");
+      };
+
+      const pad2 = (n) => String(n).padStart(2, "0");
+      const today = new Date();
+      const thisMonthKey = () =>
+        `${today.getFullYear()}-${pad2(today.getMonth() + 1)}`;
+
+      function makeMonthOptions() {
+        // 最近 6 個月：本月往回 5 個月
+        const base = new Date(today.getFullYear(), today.getMonth(), 1);
+        const months = [];
+
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+          months.push(`${d.getFullYear()}-${pad2(d.getMonth() + 1)}`);
+        }
+
+        // 再把 localStorage 裡已存在的月份補上（避免你補帳時找不到）
+        const keys = Object.keys(localStorage).filter((k) =>
+          k.startsWith("mealRecords:")
+        );
+        for (const k of keys) {
+          const mk = k.split(":")[1];
+          if (mk && !months.includes(mk)) months.push(mk);
+        }
+
+        // 由舊到新排序
+        months.sort();
+
+        // 產生選單
+        els.monthSelect.innerHTML = months
+          .map((m) => `<option value="${m}">${m}</option>`)
+          .join("");
+
+        // 預設選本月
+        els.monthSelect.value = thisMonthKey();
+      }
+
+      const storageKey = (monthKey) => `mealRecords:${monthKey}`;
+
+      function loadRecords(monthKey) {
+        try {
+          const raw = localStorage.getItem(storageKey(monthKey));
+          const data = raw ? JSON.parse(raw) : [];
+          return Array.isArray(data) ? data : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveRecords(monthKey, records) {
+        localStorage.setItem(storageKey(monthKey), JSON.stringify(records));
+      }
+
+      function normalizeAmount(input) {
+        // 只留數字
+        const s = String(input ?? "").replace(/[^\d]/g, "");
+        if (!s) return null;
+        const n = Number(s);
+        if (!Number.isFinite(n) || n <= 0) return null;
+        return Math.round(n);
+      }
+
+      function render() {
+        const monthKey = els.monthSelect.value;
+        const records = loadRecords(monthKey);
+
+        // sort: 日期 desc, 同日則新增順序 desc
+        records.sort((a, b) => {
+          const da = a.date || "";
+          const db = b.date || "";
+          if (da === db) return (b.createdAt || 0) - (a.createdAt || 0);
+          return db.localeCompare(da);
+        });
+
+        const total = records.reduce(
+          (sum, r) => sum + (Number(r.amount) || 0),
+          0
+        );
+        const remain = Math.max(0, TARGET - total);
+        const pct = Math.min(100, Math.round((total / TARGET) * 100));
+
+        els.countText.textContent = String(records.length);
+        els.totalText.textContent = fmtMoney(total);
+
+        if (remain === 0) {
+          els.remainText.textContent = "$0";
+          els.remainText.classList.add("okText");
+          els.remainText.classList.remove("dangerText");
+        } else {
+          els.remainText.textContent = fmtMoney(remain);
+          els.remainText.classList.add("dangerText");
+          els.remainText.classList.remove("okText");
+        }
+
+        els.progressFill.style.width = pct + "%";
+        els.progressFill.classList.toggle("full", pct >= 100);
+        els.progressHint.textContent = `進度：${pct}%（目標 ${fmtMoney(
+          TARGET
+        )}）`;
+
+        // table
+        if (records.length === 0) {
+          els.tbody.innerHTML = `<tr><td colspan="4" class="muted">目前沒有紀錄</td></tr>`;
+          return;
+        }
+
+        els.tbody.innerHTML = records
+          .map((r) => {
+            const d = r.date || "";
+            const note = (r.note || "")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+            return `
+          <tr>
+            <td>${d || '<span class="muted">（未填）</span>'}</td>
+            <td>${note || '<span class="muted">—</span>'}</td>
+            <td class="right amt">${fmtMoney(r.amount)}</td>
+            <td class="right">
+              <button class="miniBtn" data-action="del" data-id="${
+                r.id
+              }">刪除</button>
+            </td>
+          </tr>
+        `;
+          })
+          .join("");
+      }
+
+      function addRecord() {
+        const monthKey = els.monthSelect.value;
+
+        const amount = normalizeAmount(els.amountInput.value);
+        if (amount == null) {
+          alert("金額請輸入正整數（例如 230）");
+          els.amountInput.focus();
+          return;
+        }
+
+        const date = els.dateInput.value || "";
+        const note = (els.noteInput.value || "").trim();
+
+        const records = loadRecords(monthKey);
+        records.push({
+          id: crypto.randomUUID
+            ? crypto.randomUUID()
+            : String(Date.now()) + Math.random().toString(16).slice(2),
+          date,
+          note,
+          amount,
+          createdAt: Date.now(),
+        });
+        saveRecords(monthKey, records);
+
+        // reset inputs (日期保留，方便連續輸入同一天)
+        els.amountInput.value = "";
+        els.noteInput.value = "";
+        els.amountInput.focus();
+
+        render();
+      }
+
+      function clearMonth() {
+        const monthKey = els.monthSelect.value;
+        const records = loadRecords(monthKey);
+        if (records.length === 0) return;
+
+        const ok = confirm(`確定要清空 ${monthKey} 的所有紀錄？`);
+        if (!ok) return;
+
+        localStorage.removeItem(storageKey(monthKey));
+        render();
+      }
+
+      function exportCSV() {
+        const monthKey = els.monthSelect.value;
+        const records = loadRecords(monthKey);
+
+        const header = ["date", "note", "amount"];
+        const rows = records.map((r) => [
+          r.date || "",
+          (r.note || "").replaceAll('"', '""'),
+          String(r.amount || 0),
+        ]);
+
+        const csv = [
+          header.join(","),
+          ...rows.map((cols) => `${cols[0]},"${cols[1]}",${cols[2]}`),
+        ].join("\n");
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `餐費記錄_${monthKey}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+      }
+
+      // ========================
+      // Theme (dark/light)
+      // ========================
+      const THEME_KEY = "mealTheme";
+
+      function applyTheme(theme) {
+        // theme: 'dark' | 'light'
+        if (theme === "light") {
+          document.documentElement.setAttribute("data-theme", "light");
+          els.themeToggle.checked = true;
+          els.themeText.textContent = "淺色";
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+          els.themeToggle.checked = false;
+          els.themeText.textContent = "深色";
+        }
+        localStorage.setItem(THEME_KEY, theme);
+      }
+
+      // Events
+      els.addBtn.addEventListener("click", addRecord);
+      els.amountInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addRecord();
+      });
+
+      els.monthSelect.addEventListener("change", () => {
+        render();
+      });
+
+      els.clearBtn.addEventListener("click", clearMonth);
+      els.exportBtn.addEventListener("click", exportCSV);
+
+      els.tbody.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-action]");
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (action !== "del" || !id) return;
+
+        const monthKey = els.monthSelect.value;
+        const records = loadRecords(monthKey);
+        const next = records.filter((r) => r.id !== id);
+        saveRecords(monthKey, next);
+        render();
+      });
+
+      // 套用上次主題（預設深色）
+      applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+      // 監聽切換
+      els.themeToggle.addEventListener("change", () => {
+        applyTheme(els.themeToggle.checked ? "light" : "dark");
+      });
+
+      // Init
+      makeMonthOptions();
+      // 預設日期為今天
+      const yyyy = today.getFullYear();
+      const mm = pad2(today.getMonth() + 1);
+      const dd = pad2(today.getDate());
+      els.dateInput.value = `${yyyy}-${mm}-${dd}`;
+      render();
+    </script>
+  </body>
+</html>
