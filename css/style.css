@@ -74,8 +74,8 @@ body {
   white-space: nowrap;
 }
 .title-icon {
-  width: 25px;
-  height: 25px;
+  width: 22px;
+  height: 22px;
   display: block;
   object-fit: contain;
   transform: translateY(1px);
