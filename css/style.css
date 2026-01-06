@@ -1,0 +1,339 @@
+:root {
+  --bg: #0b1020;
+  --card: #111a33;
+  --text: #e8ecff;
+  --muted: #a9b3d6;
+  --line: #233058;
+  --accent: #7aa2ff;
+  --danger: #ff6b6b;
+  --ok: #3ddc97;
+
+  /* 控制項（input/select/toggle） */
+  --control-bg: rgba(10, 14, 30, 0.55);
+  --control-border: rgba(255, 255, 255, 0.14);
+  --control-text: var(--text);
+  --control-placeholder: rgba(232, 236, 255, 0.45);
+
+  /* 小按鈕/內層 */
+  --control-bg-soft: rgba(255, 255, 255, 0.08);
+  --control-h: 56px;
+  --control-px: 14px;
+
+  color-scheme: light dark;
+}
+:root[data-theme="light"] {
+  --bg: #f6f7fb;
+  --card: rgba(255, 255, 255, 0.88);
+  --text: #1a1f2e;
+  --muted: #5b647e;
+  --line: #d6dbea;
+  --accent: #2f64ff;
+  --danger: #d43b3b;
+  --ok: #0d9b63;
+
+  /* 淺色：控制項變淺 */
+  --control-bg: rgba(255, 255, 255, 0.92);
+  --control-border: rgba(30, 40, 70, 0.18);
+  --control-text: #1a1f2e;
+  --control-placeholder: rgba(26, 31, 46, 0.35);
+  --control-bg-soft: rgba(26, 31, 46, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Noto Sans TC", Arial;
+  background: radial-gradient(
+      1200px 600px at 20% -10%,
+      #182452 0%,
+      var(--bg) 45%
+    )
+    fixed;
+  color: var(--text);
+  padding: 20px;
+}
+.wrap {
+  max-width: 780px;
+  margin: 0 auto;
+}
+.top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+}
+.sub {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  padding: 16px;
+}
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 2px 0 6px;
+}
+input,
+select {
+  height: var(--control-h);
+  padding: 0 var(--control-px);
+  line-height: 1.2;
+  border-radius: 12px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--control-text);
+}
+input::placeholder {
+  color: var(--control-placeholder);
+}
+input:focus,
+select:focus {
+  border-color: rgba(122, 162, 255, 0.7);
+}
+.col {
+  flex: 1;
+  min-width: 160px;
+}
+.col.small {
+  flex: 0 0 160px;
+}
+.btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+button {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(122, 162, 255, 0.15);
+  color: var(--text);
+  cursor: pointer;
+}
+button:hover {
+  background: rgba(122, 162, 255, 0.22);
+}
+button.primary {
+  background: rgba(122, 162, 255, 0.28);
+  border-color: rgba(122, 162, 255, 0.45);
+}
+button.danger {
+  background: rgba(255, 107, 107, 0.14);
+  border-color: rgba(255, 107, 107, 0.35);
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+.stat {
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+}
+.stat .k {
+  font-size: 12px;
+  color: var(--muted);
+}
+.stat .v {
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 700;
+}
+.progressWrap {
+  margin-top: 12px;
+}
+.bar {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.bar > div {
+  height: 100%;
+  width: 0%;
+}
+.bar .fill {
+  background: linear-gradient(
+    90deg,
+    rgba(122, 162, 255, 0.7),
+    rgba(61, 220, 151, 0.7)
+  );
+}
+.bar .fill.full {
+  background: linear-gradient(
+    90deg,
+    rgba(61, 220, 151, 0.8),
+    rgba(61, 220, 151, 0.8)
+  );
+}
+.hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+}
+th,
+td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+}
+th {
+  color: var(--muted);
+  text-align: left;
+  font-weight: 600;
+}
+tr:last-child td {
+  border-bottom: none;
+}
+.amt {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.muted {
+  color: var(--muted);
+}
+.right {
+  text-align: center;
+}
+.miniBtn {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+}
+.miniBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.dangerText {
+  color: var(--danger);
+}
+.okText {
+  color: var(--ok);
+}
+.footerNote {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* 主題開關 UI */
+.themeToggle {
+  height: var(--control-h);
+  padding: 0 var(--control-px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  border-radius: 12px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+}
+
+/* 開關本體讓它垂直置中更穩 */
+.themeToggle input {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+/* 右邊文字不會被擠壓 */
+#themeText {
+  line-height: 1;
+  white-space: nowrap;
+}
+.themeToggle input {
+  width: 42px;
+  height: 24px;
+  appearance: none;
+  border-radius: 999px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg-soft);
+  position: relative;
+  cursor: pointer;
+}
+.themeToggle input::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  transition: all 0.18s ease;
+}
+.themeToggle input:checked {
+  background: rgba(122, 162, 255, 0.25);
+  border-color: rgba(122, 162, 255, 0.45);
+}
+.themeToggle input:checked::after {
+  left: calc(100% - 21px);
+  background: rgba(255, 255, 255, 0.9);
+}
+#themeText {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* 淺色主題：用 data-theme="light" 覆蓋變數 */
+:root[data-theme="light"] {
+  --bg: #f6f7fb;
+  --card: rgba(255, 255, 255, 0.88);
+  --text: #1a1f2e;
+  --muted: #5b647e;
+  --line: #d6dbea;
+  --accent: #2f64ff;
+  --danger: #d43b3b;
+  --ok: #0d9b63;
+}
+
+/* 淺色主題時的背景更柔和 */
+:root[data-theme="light"] body {
+  background: radial-gradient(
+      1200px 600px at 20% -10%,
+      #e8eeff 0%,
+      var(--bg) 55%
+    )
+    fixed;
+}
